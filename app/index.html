@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vice Sunset Cover Maker — GTA-style cover art from your photos</title>
+<meta name="description" content="Turn your photos and a caption into multi-panel GTA-style cover art with a Vice City sunset grade. Runs offline in your browser; photos never leave your machine. Export PNG in 1080x1080, 1080x1350 or 1920x1080.">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">VS</span><div><h1>Vice Sunset Cover Maker</h1><p>Multi-panel cover art in the GTA poster style — your photos, your caption, one PNG.</p></div></div>
+  <p class="privacy">Offline &amp; private: photos are read on your machine and never uploaded.</p>
+</header>
+<main class="app">
+  <section class="controls" aria-label="Cover editor">
+    <div class="group">
+      <h2>1 · Photos</h2>
+      <label class="file-label">Add photos <input id="photo" type="file" accept="image/*" multiple></label>
+      <div class="row">
+        <button id="loadSample" type="button">Load sample photos</button>
+        <button id="clearPhotos" type="button" class="ghost">Clear</button>
+      </div>
+      <p id="photoCount" class="hint">No photos yet</p>
+      <div id="thumbs" class="thumbs" aria-label="Loaded photos — click one to put it in the active panel"></div>
+      <button id="fillAll" type="button" class="ghost">Fill all panels with the active photo</button>
+    </div>
+
+    <div class="group">
+      <h2>2 · Layout &amp; size</h2>
+      <div class="row seg" role="group" aria-label="Panel layout">
+        <button type="button" data-layout="hero-left" class="active">Hero left + 2</button>
+        <button type="button" data-layout="hero-top">Hero top + 2</button>
+        <button type="button" data-layout="grid">Grid 2 × 2</button>
+      </div>
+      <label>Export size
+        <select id="size">
+          <option value="1920x1080" selected>1920 × 1080 (landscape)</option>
+          <option value="1080x1080">1080 × 1080 (square)</option>
+          <option value="1080x1350">1080 × 1350 (portrait)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="group">
+      <h2>3 · Active panel</h2>
+      <p id="panelLabel" class="hint">Panel 1 of 3</p>
+      <div class="row panel-dots" role="group" aria-label="Choose panel">
+        <button type="button" class="panel-dot active">1</button>
+        <button type="button" class="panel-dot">2</button>
+        <button type="button" class="panel-dot">3</button>
+        <button type="button" class="panel-dot">4</button>
+      </div>
+      <label>Photo in this panel <select id="panelPhoto"></select></label>
+      <label>Zoom <span id="zoomVal">100%</span>
+        <input id="zoom" type="range" min="1" max="3" step="0.05" value="1">
+      </label>
+      <p class="hint">Tip: click a panel on the cover to select it, drag to move the photo, scroll to zoom.</p>
+      <button id="resetCrop" type="button" class="ghost">Reset crop for this panel</button>
+    </div>
+
+    <div class="group">
+      <h2>4 · Captions</h2>
+      <label>Top caption <input id="topText" type="text" maxlength="40" value="VICE CITY"></label>
+      <label>Main caption <input id="bottomText" type="text" maxlength="48" value="Sunset Heist"></label>
+      <label>Tag line <input id="subText" type="text" maxlength="48" value="A story in three panels"></label>
+      <label>Caption style <select id="captionStyle"></select></label>
+    </div>
+
+    <div class="group">
+      <h2>5 · Colour grade</h2>
+      <label>Grade <select id="grade"></select></label>
+      <label>Grade strength <span id="gradeVal">70%</span>
+        <input id="gradeStrength" type="range" min="0" max="1" step="0.05" value="0.7">
+      </label>
+      <div class="row checks">
+        <label><input id="halftone" type="checkbox" checked> Halftone</label>
+        <label><input id="grain" type="checkbox" checked> Grain</label>
+        <label><input id="vignette" type="checkbox" checked> Vignette</label>
+      </div>
+    </div>
+
+    <button id="export" type="button" class="export">Export PNG</button>
+    <p id="status" role="status"></p>
+    <p class="fine">Original design. Not affiliated with Rockstar Games; no Rockstar logo, artwork or font is used. Display font: Anton (SIL Open Font License), bundled under app/fonts/.</p>
+  </section>
+
+  <section class="stage" aria-label="Cover preview">
+    <div id="preview" class="preview">
+      <canvas id="cover" width="900" height="506" aria-label="The cover preview"></canvas>
+    </div>
+    <p class="hint">Live preview — what you see is what the PNG looks like.</p>
+  </section>
+</main>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

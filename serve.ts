@@ -1,18 +1,22 @@
-// A tiny static server for app/ (Node 22, standard library only), so the entry can
-// be tried locally without a build step: `node serve.ts` serves app/ on
-// http://localhost:8080. Development convenience only, not part of the handed-in app.
+// A minimal static file server for app/ (Node 22, standard library only).
+// It exists so the entry can be tried locally with no build step:
+//
+//   node serve.ts            # serves app/ on http://localhost:8080
+//   node serve.ts --port 8091
+//
+// Development convenience only — this file is not part of the handed-in app.
 import { createReadStream, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = resolve(fileURLToPath(new URL('./app', import.meta.url)));
-const args = process.argv.slice(2);
-const portIndex = args.indexOf('--port');
-const requested = portIndex === -1 ? 8080 : Number(args[portIndex + 1]);
-const port = Number.isInteger(requested) && requested > 0 && requested < 65536 ? requested : 8080;
+const appRoot = resolve(fileURLToPath(new URL('./app', import.meta.url)));
+const cliArgs = process.argv.slice(2);
+const portFlag = cliArgs.indexOf('--port');
+const wanted = portFlag === -1 ? 8080 : Number(cliArgs[portFlag + 1]);
+const port = Number.isInteger(wanted) && wanted > 0 && wanted < 65536 ? wanted : 8080;
 
-const MIME = {
+const CONTENT_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -26,36 +30,46 @@ const MIME = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
-createServer((request, response) => {
-  const url = new URL(request.url ?? '/', 'http://localhost');
+function replyError(response, code, message) {
+  response.writeHead(code).end(message);
+}
+
+function resolveRequestedPath(rawUrl) {
   let pathname;
   try {
-    pathname = decodeURIComponent(url.pathname);
+    pathname = decodeURIComponent(new URL(rawUrl ?? '/', 'http://localhost').pathname);
   } catch {
-    response.writeHead(400).end('bad request');
-    return;
+    return { error: 400 };
   }
   if (pathname.endsWith('/')) pathname += 'index.html';
-  const file = resolve(join(root, normalize(pathname)));
-  if (file !== root && !file.startsWith(root + sep)) {
-    response.writeHead(403).end('forbidden');
+  const file = resolve(join(appRoot, normalize(pathname)));
+  if (file !== appRoot && !file.startsWith(appRoot + sep)) return { error: 403 };
+  return { file };
+}
+
+const server = createServer((request, response) => {
+  const resolved = resolveRequestedPath(request.url);
+  if (resolved.error) {
+    replyError(response, resolved.error, resolved.error === 400 ? 'bad request' : 'forbidden');
     return;
   }
   let size;
   try {
-    const stats = statSync(file);
+    const stats = statSync(resolved.file);
     if (!stats.isFile()) throw new Error('not a file');
     size = stats.size;
   } catch {
-    response.writeHead(404).end('not found');
+    replyError(response, 404, 'not found');
     return;
   }
   response.writeHead(200, {
-    'content-type': MIME[extname(file).toLowerCase()] ?? 'application/octet-stream',
+    'content-type': CONTENT_TYPES[extname(resolved.file).toLowerCase()] ?? 'application/octet-stream',
     'content-length': size,
     'cache-control': 'no-store',
   });
-  createReadStream(file).pipe(response);
-}).listen(port, '127.0.0.1', () => {
+  createReadStream(resolved.file).pipe(response);
+});
+
+server.listen(port, '127.0.0.1', () => {
   console.log(`app/ is on http://localhost:${port}`);
 });

@@ -1,9 +1,16 @@
 # Vice Sunset Cover Maker
 
+[![make.fun · gta6-cover-art-01](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+[![rank](https://make.fun/badge/gta6-cover-art-01/maxwin96/gta6-cover-art-01-entry/rank.svg)](https://make.fun/bounty/gta6-cover-art-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+[![reward](https://make.fun/badge/gta6-cover-art-01/maxwin96/gta6-cover-art-01-entry/reward.svg)](https://make.fun/bounty/gta6-cover-art-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01)
+
 Turn your own photos into a poster-style cover with the look of a
 Vice City sunset: warm oranges, neon pinks, big condensed lettering.
 Everything runs in your browser, and your photos never leave your
 machine.
+
+Built for make.fun's "Make GTA 6 Cover Art" bounty — see the bounty at
+[https://make.fun/bounty/gta6-cover-art-01](https://make.fun/bounty/gta6-cover-art-01).
 
 ## What it does
 
@@ -45,3 +52,7 @@ requests at all: no web fonts, no scripts from a CDN, no uploads. The
 two sample photos ship with the app so it works out of the box.
 
 Released under the MIT License — see `LICENSE`.
+
+---
+
+<sub>Entered on [make.fun](https://make.fun/?utm_source=github&utm_medium=readme&utm_campaign=gta6-cover-art-01) · AI agents build software for cash rewards</sub>

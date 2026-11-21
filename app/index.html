@@ -3,97 +3,120 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vice Sunset Cover Maker — GTA 6 Cover Art</title>
+<title>Vice Sunset Cover Maker</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>VICE SUNSET COVER MAKER</h1>
-  <p>Turn your photos + caption into GTA 6-style cover art. Fully offline.</p>
+<header class="topbar">
+  <h1>VICE SUNSET <span>Cover Maker</span></h1>
+  <p class="tagline">Turn your photos + caption into GTA 6 style cover art. Fully offline.</p>
 </header>
-<main>
-  <div id="stage-wrap">
-    <canvas id="stage" width="1080" height="1080"></canvas>
-    <p class="hint">Click a panel to select it, drag to pan the photo, use the zoom slider to zoom.</p>
-  </div>
 
-  <div id="controls">
-    <section>
+<main class="editor">
+  <section class="preview-col">
+    <div class="canvas-wrap">
+      <canvas id="cover" width="1080" height="1080"></canvas>
+    </div>
+    <p class="hint">Click a panel to select it. Drag a photo to pan it. Use the zoom slider for the selected panel.</p>
+  </section>
+
+  <section class="controls">
+    <div class="group">
       <h2>Layout</h2>
-      <div class="row" id="layout-buttons"></div>
-      <div class="row" style="margin-top:10px">
-        <label class="field">Preview aspect
-          <select id="aspect-select">
-            <option value="1080x1080">Square 1080 × 1080</option>
-            <option value="1080x1350">Portrait 1080 × 1350</option>
-            <option value="1920x1080">Landscape 1920 × 1080</option>
-          </select>
-        </label>
+      <div class="btn-row">
+        <button type="button" data-layout="hero">Hero</button>
+        <button type="button" data-layout="duo">Duo</button>
+        <button type="button" data-layout="trio" class="active">Trio</button>
+        <button type="button" data-layout="quad">Quad</button>
       </div>
-    </section>
+    </div>
 
-    <section>
+    <div class="group">
       <h2>Colour grade</h2>
-      <div class="row" id="grade-buttons"></div>
-    </section>
-
-    <section>
-      <h2>Caption</h2>
-      <div class="row">
-        <label class="field">Title
-          <input type="text" id="title-input" value="VICE SUNSET" maxlength="40">
-        </label>
-        <label class="field">Subtitle
-          <input type="text" id="subtitle-input" value="Welcome back to Leonida" maxlength="60">
-        </label>
+      <div class="btn-row">
+        <button type="button" data-grade="sunset" class="active">Sunset</button>
+        <button type="button" data-grade="neon">Neon</button>
+        <button type="button" data-grade="vice">Vice</button>
+        <button type="button" data-grade="gold">Gold</button>
+        <button type="button" data-grade="noir">Noir</button>
       </div>
-      <div class="row" style="margin-top:10px">
-        <label class="field">Size
-          <input type="range" id="size-slider" min="0.5" max="1.8" step="0.05" value="1">
-        </label>
-        <label class="field">Position
-          <select id="position-select">
+    </div>
+
+    <div class="group">
+      <h2>Caption</h2>
+      <label>Title
+        <input id="title" type="text" value="VICE SUNSET" maxlength="40">
+      </label>
+      <label>Subtitle
+        <input id="subtitle" type="text" value="Leonida Nights" maxlength="60">
+      </label>
+      <label>Title size <span id="titleSizeVal">100%</span>
+        <input id="titleSize" type="range" min="0.5" max="2" step="0.05" value="1">
+      </label>
+      <div class="row2">
+        <label>Position
+          <select id="position">
             <option value="top">Top</option>
             <option value="center">Center</option>
             <option value="bottom" selected>Bottom</option>
           </select>
         </label>
-        <label class="field">Colour
-          <input type="color" id="color-input" value="#ffffff">
+        <label>Colour
+          <select id="color">
+            <option value="white" selected>White</option>
+            <option value="black">Black</option>
+            <option value="yellow">Yellow</option>
+            <option value="pink">Pink</option>
+            <option value="cyan">Cyan</option>
+          </select>
         </label>
       </div>
-      <div class="checks" style="margin-top:10px">
-        <label class="check"><input type="checkbox" id="outline-toggle" checked> Outline</label>
-        <label class="check"><input type="checkbox" id="shadow-toggle" checked> Shadow</label>
-        <label class="check"><input type="checkbox" id="grain-toggle" checked> Grain</label>
-        <label class="check"><input type="checkbox" id="vignette-toggle" checked> Vignette</label>
+      <div class="checks">
+        <label><input id="outline" type="checkbox" checked> Outline</label>
+        <label><input id="shadow" type="checkbox" checked> Shadow</label>
+        <label><input id="grain" type="checkbox" checked> Grain</label>
+        <label><input id="vignette" type="checkbox" checked> Vignette</label>
       </div>
-    </section>
+    </div>
 
-    <section>
-      <h2>Photo panel</h2>
-      <div class="row" id="panel-picker"></div>
-      <p id="panel-label">Panel 1 of 1</p>
-      <div class="row">
-        <button class="action" id="assign-photo" type="button">Assign photo…</button>
-        <button class="action secondary" id="clear-photo" type="button">Clear</button>
-        <button class="action secondary" id="fill-all" type="button">Fill all panels</button>
+    <div class="group">
+      <h2>Photo panels</h2>
+      <div class="btn-row panel-chips">
+        <button type="button" class="panel-chip active">Panel 1</button>
+        <button type="button" class="panel-chip">Panel 2</button>
+        <button type="button" class="panel-chip">Panel 3</button>
+        <button type="button" class="panel-chip">Panel 4</button>
       </div>
-      <div class="row" style="margin-top:10px">
-        <label class="field">Zoom — <span id="zoom-value">1.00×</span>
-          <input type="range" id="zoom-slider" min="1" max="3" step="0.05" value="1">
-        </label>
+      <label>Zoom <span id="zoomVal">100%</span>
+        <input id="zoom" type="range" min="1" max="2.5" step="0.05" value="1">
+      </label>
+      <div class="btn-row">
+        <button type="button" id="chooseFile">Upload photo</button>
+        <button type="button" id="fillAll">Fill all panels</button>
       </div>
-      <input type="file" id="file-input" accept="image/*" hidden>
-    </section>
+      <input id="upload" type="file" accept="image/*" hidden>
+      <p class="samples-label">Samples (click to assign to the selected panel):</p>
+      <div class="samples">
+        <button type="button" class="sample-thumb"><img src="samples/boulevard.jpg" alt="Boulevard sample"><span>Boulevard</span></button>
+        <button type="button" class="sample-thumb"><img src="samples/pier.jpg" alt="Pier sample"><span>Pier</span></button>
+      </div>
+    </div>
 
-    <section>
+    <div class="group">
       <h2>Export PNG</h2>
-      <div class="row" id="export-buttons"></div>
-    </section>
-  </div>
+      <div class="btn-row">
+        <button type="button" data-export="1080x1080">1080 &times; 1080</button>
+        <button type="button" data-export="1080x1350">1080 &times; 1350</button>
+        <button type="button" data-export="1920x1080">1920 &times; 1080</button>
+      </div>
+    </div>
+  </section>
 </main>
-<footer>Fully offline — no network requests. System fonts only. Built for the make.fun “Make GTA 6 Cover Art” bounty.</footer>
+
+<footer>
+  <p>Vice Sunset Cover Maker — offline cover art studio. No uploads, no network.</p>
+</footer>
+
 <script type="module" src="src/main.js"></script>
 </body>
 </html>

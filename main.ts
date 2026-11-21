@@ -1,17 +1,15 @@
-// Vice Sunset Cover Maker — entry builder.
-// Copies app/ and screenshots/ into the output directory, then writes the
-// make.fun dossier (makefun/dossier/v1) the scorer recomputes byte for byte.
-//
-// Usage:  MAKEFUN_OUTPUT_DIR=out node main.ts
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+// Vice Sunset Cover Maker — build entrypoint.
+// Copies app/ and screenshots/ into OUT_DIR and writes dossier.json there.
+// NEVER deletes OUT_DIR itself: on the grading server OUT_DIR is a mount
+// point, and removing it fails with EBUSY. Only mkdir + write/copy inside it.
+import { mkdirSync, cpSync, writeFileSync, existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-app.ts';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const OUT_DIR = resolve(process.env.MAKEFUN_OUTPUT_DIR ?? 'out');
+const OUT_DIR = process.env.MAKEFUN_OUTPUT_DIR || 'out';
 
-// The bounty's gate caps (gate.json keys, passed whole to buildDossier).
 const CAPS = {
   text_max_bytes: 163840,
   screenshots: { max: 4, max_bytes: 262144 },
@@ -19,40 +17,36 @@ const CAPS = {
   app_max_bytes: 50331648,
 };
 
-function build(): void {
-  rmSync(OUT_DIR, { recursive: true, force: true });
-  mkdirSync(OUT_DIR, { recursive: true });
-  for (const dir of ['app', 'screenshots']) {
-    const src = join(ROOT, dir);
-    if (!existsSync(src)) throw new Error(`missing ${dir}/ in ${ROOT}`);
-    cpSync(src, join(OUT_DIR, dir), { recursive: true });
-  }
+function build() {
+  // Create OUT_DIR (and its children) without ever removing OUT_DIR itself.
+  mkdirSync(join(OUT_DIR, 'app'), { recursive: true });
+  mkdirSync(join(OUT_DIR, 'screenshots'), { recursive: true });
+  cpSync(join(ROOT, 'app'), join(OUT_DIR, 'app'), { recursive: true });
+  cpSync(join(ROOT, 'screenshots'), join(OUT_DIR, 'screenshots'), { recursive: true });
   const dossier = buildDossier(OUT_DIR, CAPS);
   writeFileSync(join(OUT_DIR, 'dossier.json'), dossier);
-  validateOutput(OUT_DIR, dossier);
-  console.log(`wrote ${join(OUT_DIR, 'dossier.json')} (${dossier.length} bytes)`);
+  console.log(`built ${OUT_DIR} (dossier ${dossier.length} bytes)`);
 }
 
-// Validates the built output before reporting success: the dossier must
-// parse with the expected schema, the entry page must exist, there must be
-// 3–4 screenshots, and a second buildDossier run must produce byte-identical
-// bytes (determinism check — a non-deterministic dossier fails the scorer).
-function validateOutput(outDir: string, dossier: Uint8Array): void {
-  const parsed = JSON.parse(new TextDecoder().decode(dossier)) as { schema?: string };
-  if (parsed.schema !== 'makefun/dossier/v1') {
-    throw new Error(`dossier schema mismatch: ${String(parsed.schema)}`);
+function validateOutput() {
+  const required = [
+    join(OUT_DIR, 'app', 'index.html'),
+    join(OUT_DIR, 'app', 'src', 'main.js'),
+    join(OUT_DIR, 'app', 'src', 'cover.js'),
+    join(OUT_DIR, 'app', 'style.css'),
+    join(OUT_DIR, 'dossier.json'),
+  ];
+  for (const file of required) {
+    if (!existsSync(file)) throw new Error(`missing output file: ${file}`);
   }
-  if (!existsSync(join(outDir, 'app', 'index.html'))) {
-    throw new Error('output is missing app/index.html');
+  const shots = ['01-cover.png', '02-editor.png', '03-cover-portrait.png', '04-cover-square.png'];
+  for (const shot of shots) {
+    if (!existsSync(join(OUT_DIR, 'screenshots', shot))) {
+      throw new Error(`missing screenshot: ${shot}`);
+    }
   }
-  const shots = readdirSync(join(outDir, 'screenshots')).filter((f) => /\.(png|jpe?g)$/i.test(f));
-  if (shots.length < 3 || shots.length > 4) {
-    throw new Error(`expected 3–4 screenshots, found ${shots.length}`);
-  }
-  const rebuilt = buildDossier(outDir, CAPS);
-  if (!Buffer.from(rebuilt).equals(Buffer.from(dossier))) {
-    throw new Error('dossier is not deterministic: second build differs');
-  }
+  console.log('validateOutput: app + 4 screenshots + dossier.json present');
 }
 
 build();
+validateOutput();

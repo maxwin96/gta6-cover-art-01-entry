@@ -3,107 +3,97 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vice Sunset Cover Maker</title>
-<link rel="icon" href="data:,">
+<title>Vice Sunset Cover Maker — GTA 6 Cover Art</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="topbar">
-  <h1>Vice Sunset Cover Maker</h1>
-  <p class="tagline">Turn your photos into a sunset-soaked Vice City style poster &mdash; right in your browser.</p>
+<header>
+  <h1>VICE SUNSET COVER MAKER</h1>
+  <p>Turn your photos + caption into GTA 6-style cover art. Fully offline.</p>
 </header>
+<main>
+  <div id="stage-wrap">
+    <canvas id="stage" width="1080" height="1080"></canvas>
+    <p class="hint">Click a panel to select it, drag to pan the photo, use the zoom slider to zoom.</p>
+  </div>
 
-<main class="workspace">
-  <section class="stage">
-    <canvas id="preview" width="960" height="540" aria-label="Cover preview"></canvas>
-    <p class="hint" id="stageHint">Click a panel to place the selected photo &middot; drag inside a panel to pan &middot; use the zoom slider to zoom.</p>
-    <div class="panel-bar" id="panelBar" aria-label="Panels"></div>
-  </section>
-
-  <aside class="controls">
-    <section class="group">
-      <h2>Photos</h2>
-      <label class="file-btn" for="photoInput">Upload photos</label>
-      <input type="file" id="photoInput" accept="image/*" multiple hidden>
-      <button type="button" id="sampleBtn">Use sample photo</button>
-      <div class="thumbs" id="thumbs"></div>
-      <p class="note">Photos are read locally and never leave your machine.</p>
-    </section>
-
-    <section class="group">
+  <div id="controls">
+    <section>
       <h2>Layout</h2>
-      <div class="btn-row" id="layoutRow">
-        <button type="button" data-layout="hero" class="active">Hero</button>
-        <button type="button" data-layout="duo">Duo</button>
-        <button type="button" data-layout="trio">Trio</button>
-        <button type="button" data-layout="quad">Quad</button>
+      <div class="row" id="layout-buttons"></div>
+      <div class="row" style="margin-top:10px">
+        <label class="field">Preview aspect
+          <select id="aspect-select">
+            <option value="1080x1080">Square 1080 × 1080</option>
+            <option value="1080x1350">Portrait 1080 × 1350</option>
+            <option value="1920x1080">Landscape 1920 × 1080</option>
+          </select>
+        </label>
       </div>
     </section>
 
-    <section class="group">
-      <h2>Grade</h2>
-      <div class="btn-row" id="gradeRow">
-        <button type="button" data-grade="sunset" class="active">Sunset</button>
-        <button type="button" data-grade="neon">Neon</button>
-        <button type="button" data-grade="vice">Vice</button>
-        <button type="button" data-grade="gold">Gold</button>
-        <button type="button" data-grade="noir">Noir</button>
-      </div>
+    <section>
+      <h2>Colour grade</h2>
+      <div class="row" id="grade-buttons"></div>
     </section>
 
-    <section class="group">
-      <h2>Selected panel</h2>
-      <label class="slider-label">Zoom
-        <input type="range" id="zoomSlider" min="1" max="3" step="0.05" value="1">
-        <span id="zoomValue">1.00&times;</span>
-      </label>
-      <button type="button" id="fillAllBtn">Fill all panels with this photo</button>
-    </section>
-
-    <section class="group">
+    <section>
       <h2>Caption</h2>
-      <label class="text-label">Title
-        <input type="text" id="titleInput" value="VICE SUNSET" maxlength="40">
-      </label>
-      <label class="text-label">Subtitle
-        <input type="text" id="subtitleInput" value="NEON COAST" maxlength="40">
-      </label>
-      <label class="slider-label">Title size
-        <input type="range" id="titleSizeSlider" min="40" max="160" step="2" value="96">
-        <span id="titleSizeValue">96</span>
-      </label>
-      <div class="btn-row" id="titlePosRow">
-        <button type="button" data-titlepos="top">Title on top</button>
-        <button type="button" data-titlepos="bottom" class="active">Title at bottom</button>
+      <div class="row">
+        <label class="field">Title
+          <input type="text" id="title-input" value="VICE SUNSET" maxlength="40">
+        </label>
+        <label class="field">Subtitle
+          <input type="text" id="subtitle-input" value="Welcome back to Leonida" maxlength="60">
+        </label>
       </div>
-      <div class="btn-row" id="titleColorRow">
-        <button type="button" data-titlecolor="#ffffff" class="active">White</button>
-        <button type="button" data-titlecolor="#ffd23f">Yellow</button>
-        <button type="button" data-titlecolor="#ff5ea8">Pink</button>
+      <div class="row" style="margin-top:10px">
+        <label class="field">Size
+          <input type="range" id="size-slider" min="0.5" max="1.8" step="0.05" value="1">
+        </label>
+        <label class="field">Position
+          <select id="position-select">
+            <option value="top">Top</option>
+            <option value="center">Center</option>
+            <option value="bottom" selected>Bottom</option>
+          </select>
+        </label>
+        <label class="field">Colour
+          <input type="color" id="color-input" value="#ffffff">
+        </label>
       </div>
-      <label class="check"><input type="checkbox" id="outlineToggle" checked> Thick outline</label>
-      <label class="check"><input type="checkbox" id="shadowToggle" checked> Drop shadow</label>
-      <label class="check"><input type="checkbox" id="grainToggle" checked> Grain</label>
-      <label class="check"><input type="checkbox" id="vignetteToggle" checked> Vignette</label>
+      <div class="checks" style="margin-top:10px">
+        <label class="check"><input type="checkbox" id="outline-toggle" checked> Outline</label>
+        <label class="check"><input type="checkbox" id="shadow-toggle" checked> Shadow</label>
+        <label class="check"><input type="checkbox" id="grain-toggle" checked> Grain</label>
+        <label class="check"><input type="checkbox" id="vignette-toggle" checked> Vignette</label>
+      </div>
     </section>
 
-    <section class="group">
-      <h2>Export</h2>
-      <label class="text-label">Size
-        <select id="exportSize">
-          <option value="1080x1080">1080 &times; 1080 (square)</option>
-          <option value="1080x1350">1080 &times; 1350 (portrait)</option>
-          <option value="1920x1080" selected>1920 &times; 1080 (landscape)</option>
-        </select>
-      </label>
-      <button type="button" id="downloadBtn" class="primary">Download PNG</button>
+    <section>
+      <h2>Photo panel</h2>
+      <div class="row" id="panel-picker"></div>
+      <p id="panel-label">Panel 1 of 1</p>
+      <div class="row">
+        <button class="action" id="assign-photo" type="button">Assign photo…</button>
+        <button class="action secondary" id="clear-photo" type="button">Clear</button>
+        <button class="action secondary" id="fill-all" type="button">Fill all panels</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <label class="field">Zoom — <span id="zoom-value">1.00×</span>
+          <input type="range" id="zoom-slider" min="1" max="3" step="0.05" value="1">
+        </label>
+      </div>
+      <input type="file" id="file-input" accept="image/*" hidden>
     </section>
-  </aside>
+
+    <section>
+      <h2>Export PNG</h2>
+      <div class="row" id="export-buttons"></div>
+    </section>
+  </div>
 </main>
-
-<footer class="foot">Runs fully offline &mdash; photos never leave your machine.</footer>
-
-<script src="src/cover.js"></script>
-<script src="src/main.js"></script>
+<footer>Fully offline — no network requests. System fonts only. Built for the make.fun “Make GTA 6 Cover Art” bounty.</footer>
+<script type="module" src="src/main.js"></script>
 </body>
 </html>
